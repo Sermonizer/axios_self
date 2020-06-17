@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-06-17 15:36:02
- * @LastEditTime: 2020-06-17 16:28:55
+ * @LastEditTime: 2020-06-17 21:56:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Tx_axios\test\axios_chain.html
@@ -17,6 +17,19 @@
   <body>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+      /*
+        chain: [
+                  fullfilled2, rejected2, fullfilled1, rejected1,
+                  dispatchRequest, undefined,
+                  fullfilled11, rejected11, fullfilled22, rejected22,
+               ]
+        promise链回调：config 
+                        => (fullfilled2, rejected2) => (fullfilled1, rejected1) // 请求拦截器处理
+                        => (dispatchRequest, undefined) // 发请求
+                        => (fullfilled11, rejected11) => (fullfilled22, rejected22) // 响应拦截器处理
+                        => (onResolved, onRejected) //axios发送回调处理
+      */
+     
       // 添加请求拦截器（可以有多个，是一个回调函数）
       axios.interceptors.request.use(
         (config) => {
