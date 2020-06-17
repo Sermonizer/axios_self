@@ -1,0 +1,49 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-06-17 15:36:02
+ * @LastEditTime: 2020-06-17 15:48:11
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Tx_axios\test\axios_chain.html
+--> 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 添加请求拦截器（可以有多个，是一个回调函数）
+        axios.interceptors.request.use(
+            config => {
+                console.log("request interceptors1 onResolved()");
+                return config
+            },
+            error => {
+                console.log("request interceptors1 onRejected()");
+                return Promise.reject(error)
+            }
+        )
+
+        axios.interceptors.request.use(
+            config => {
+                console.log("request interceptors2 onResolved()");
+                return config
+            },
+            error => {
+                console.log("request interceptors2 onRejected()");
+                return Promise.reject(error)
+            }
+        )
+
+        // 添加响应拦截器(回调)
+        axios.interceptors.response.use(
+            
+        )
+    </script>
+</body>
+</html>
