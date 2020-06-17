@@ -1,0 +1,84 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-06-17 17:31:04
+ * @LastEditTime: 2020-06-17 19:04:27
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Tx_axios\test\axios_cancel2.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="getProducts1()">获取商品列表1</button>
+    <button onclick="getProducts2()">获取商品列表2</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      axios.defaults.baseURL = "http://localhost:4000";
+      let cancel;
+      function getProducts1() {
+        if (typeof cancel === "function") {
+          cancel("强制取消请求");
+        }
+        // c是用于保存取消当前请求的函数
+        axios
+          .get("/products1", {
+            cancelToken: new axios.CancelToken((c) => {
+              // 保存取消函数
+              cancel = c;
+            }),
+          })
+          .then(
+            (response) => {
+              //   函数成功或者失败 cancel都没必要存在了
+              cancel = null;
+              console.log("获取商品1成功", response.data);
+            },
+            (error) => {
+              if (axios.isCancel(error)) {
+                console.log("错误原因：请求1取消", error.message);
+              } else {
+                cancel = null;
+                console.log("获取商品1失败", error.message);
+              }
+            }
+          );
+      }
+
+      function getProducts2() {
+        if (typeof cancel === "function") {
+          cancel("强制取消请求");
+        }
+        axios
+          .get("/products2", {
+            cancelToken: new axios.CancelToken((c) => {
+              // 保存取消函数
+              cancel = c;
+            }),
+          })
+          .then(
+            (response) => {
+              // 函数成功或者失败 cancel都没必要存在了
+              cancel = null;
+              console.log("获取商品2成功", response.data);
+            },
+            // 不能直接设置为null 因为操作是异步的 会出现覆盖上一个的cancel 只能取消部分请求
+            (error) => {
+                if (axios.isCancel(error)) {
+                console.log("错误原因：请求2取消", error.message);
+              } else {
+                cancel = null;
+                console.log("获取商品2失败", error.message);
+              }
+            }
+          );
+      }
+    </script>
+  </body>
+</html>

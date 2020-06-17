@@ -1,0 +1,89 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-06-17 19:16:30
+ * @LastEditTime: 2020-06-17 19:39:41
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Tx_axios\test\axios_cancel3.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="getProducts1()">获取商品列表1</button>
+    <button onclick="getProducts2()">获取商品列表2</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      axios.defaults.baseURL = "http://localhost:4000";
+      let cancel;
+
+      // cancel2代码冗余度高 利用拦截器进行优化
+      //   添加请求拦截器
+      axios.interceptors.request.use((config) => {
+        // 在准备发请求前 取消未完成的请求
+        if (typeof cancel === "function") {
+          cancel("强制取消请求");
+        }
+        // 添加cancelToken配置
+        config.cancelToken = new axios.CancelToken((c) => {
+          // 保存取消函数
+          cancel = c;
+        });
+        return config;
+      });
+
+      // 添加响应拦截器
+      axios.interceptors.response.use(
+        (response) => {
+          cancel = null;
+          return response;
+        },
+        (error) => {
+          // 取消请求的错误
+          if (axios.isCancel(error)) {
+            // 需要中断请求， 中断Promuse链
+            console.log("错误原因：请求取消", error.message);
+            return new Promise(() => {});
+          } else {
+            // 需要将错误继续向下传递
+            cancel = null;
+            return Promise.reject(error);
+          }
+        }
+      );
+
+      function getProducts1() {
+        // c 是用于保存取消当前请求的函数
+        axios.get("/products1").then(
+          (response) => {
+            // 函数成功或者失败 cancel都没必要存在了
+            console.log("获取商品1成功", response.data);
+          },
+          (error) => {
+            // 只用处理请求失败的情况， 取消请求的情况不用处理
+            console.log("获取商品1失败", error.message);
+          }
+        );
+      }
+
+      function getProducts2() {
+        axios.get("/products2").then(
+          (response) => {
+            // 函数成功或者失败 cancel都没必要存在了
+            console.log("获取商品2成功", response.data);
+          },
+          // 不能直接设置为null 因为操作是异步的 会出现覆盖上一个的cancel 只能取消部分请求
+          (error) => {
+            console.log("获取商品2失败", error.message);
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
