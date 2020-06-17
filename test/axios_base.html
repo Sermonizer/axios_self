@@ -1,0 +1,97 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-06-17 14:46:47
+ * @LastEditTime: 2020-06-17 15:07:37
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Axios\test\axios_base.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="testGet()">发送Get请求</button>
+    <button onclick="testPost()">发送Post请求</button>
+    <button onclick="testPut()">发送Put请求</button>
+    <button onclick="testDelete()">发送Delete请求</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      // 指定默认配置
+      axios.defaults.baseURL = "http://localhost:3000";
+      // 服务器端请求数据
+      function testGet() {
+        axios({
+          url: "/posts",
+          method: "GET",
+          params: {
+            id: 1,
+          },
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+
+      //   服务器端保存数据
+      function testPost() {
+        axios
+          .post("/posts", { title: "json_server base", author: "wangwu" })
+          .then(
+            (response) => {
+              console.log(response);
+            },
+            (error) => {
+              alert(error.message);
+            }
+          );
+      }
+
+      // 服务器端更新数据 put提交请求体参数（data）
+      function testPut() {
+        axios({
+          url: "/posts/1",
+          method: "put",
+          data: {
+            title: "json-server:base",
+            author: "axios",
+          },
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+
+      // 服务器端删除数据
+      function testDelete() {
+        axios({
+          url: "/posts/2",
+          method: "delete",
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+    </script>
+  </body>
+</html>

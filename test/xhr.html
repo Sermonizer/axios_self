@@ -1,0 +1,160 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-06-17 10:46:34
+ * @LastEditTime: 2020-06-17 14:43:13
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Axios\test\xhr.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="testGet()">发送Get请求</button>
+    <button onclick="testPost()">发送Post请求</button>
+    <button onclick="testPut()">发送Put请求</button>
+    <button onclick="testDelete()">发送Delete请求</button>
+    <script>
+      // 服务器端请求数据
+      function testGet() {
+        axios({
+          url: "http://localhost:3000/posts",
+          method: "GET",
+          data: {
+            title: "json-server666",
+            author: "zhangsan",
+          },
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+
+      //   服务器端保存数据
+      function testPost() {
+        axios({
+          url: "http://localhost:3000/posts",
+          method: "POST",
+          data: {
+            title: "json-server666",
+            author: "zhangsan",
+          },
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            alert(error.message);
+          }
+        );
+      }
+
+      // 服务器端更新数据 put提交请求体参数（data）
+      function testPut() {
+        axios({
+          url: "http://localhost:3000/posts/1",
+          method: "put",
+          data: {
+            title: "json-server:77777",
+            author: "lisi",
+          },
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+
+      // 服务器端删除数据
+      function testDelete() {
+        axios({
+          url: "http://localhost:3000/posts/2",
+          method: "delete",
+        }).then(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.log(error);
+            alert(error);
+          }
+        );
+      }
+      /*
+            函数的返回值是promise，成功的结果为response， 失败的结果为error
+            能处理多种类型的请求 get post put delete
+            函数的参数是一个配置对象
+            响应的Json数据自动解析为js的对象/数组
+        */
+      function axios({ url, method = "GET", params = {}, data = {} }) {
+        return new Promise((resolve, reject) => {
+          // 将method转大写
+          method = method.toUpperCase();
+          // 有可能url接的是 ?aaa=1&b=2这样的参数
+          let queryString = "";
+          Object.keys(params).forEach((key) => {
+            // 但是多了一个&
+            queryString += `${key}=${params[key]}&`;
+          });
+          if (queryString) {
+            queryString = queryString.substring(0, queryString.length - 1);
+            // 拼接到url
+            url += "?" + queryString;
+          }
+          // 1 异步执行ajax请求
+          // 创建xhr对象
+          const request = new XMLHttpRequest();
+          // 打开连接（初始化请求）
+          request.open(method, url, true);
+
+          // 发送请求
+          if (method === "GET" || method === "DELETE") {
+            request.send();
+          } else if (method === "POST" || method === "PUT") {
+            // 发送json格式请求体参数时 也要发送json格式请求头
+            request.setRequestHeader(
+              "Content-Type",
+              "application/json;charset=utf-8"
+            );
+            request.send(JSON.stringify(data));
+          }
+
+          // 绑定状态改变的监听
+          request.onreadystatechange = () => {
+            // 如果请求没有完成 直接结束
+            if (request.readyState !== 4) return;
+            // 如果响应状态码在[200,300)之间代表成功，否则失败
+            const { status, statusText } = request;
+            // 2.1 请求成功调用resolve
+            if (status >= 200 && status < 300) {
+              // 结果数据对象response
+              const response = {
+                data: JSON.parse(request.response),
+                status,
+                statusText,
+              };
+              resolve(response);
+            } else {
+              // 2.2 请求失败调用reject
+              reject(new Error("request error status is") + status);
+            }
+          };
+        });
+      }
+    </script>
+  </body>
+</html>
